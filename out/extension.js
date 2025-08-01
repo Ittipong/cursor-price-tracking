@@ -15,11 +15,11 @@ class PriceItem extends vscode.TreeItem {
 }
 class SessionCard extends vscode.TreeItem {
     constructor(usageEvent, collapsibleState = vscode.TreeItemCollapsibleState.None) {
-        const modelName = SessionCard.formatModelName(usageEvent.model);
-        super(modelName, collapsibleState);
+        const price = SessionCard.formatCost(usageEvent);
+        super(price, collapsibleState);
         this.usageEvent = usageEvent;
         this.collapsibleState = collapsibleState;
-        this.description = `${SessionCard.formatTime(usageEvent.timestamp)} • ${SessionCard.formatCost(usageEvent)}`;
+        this.description = `${SessionCard.formatTokens(usageEvent.tokens)} • ${SessionCard.formatTime(usageEvent.timestamp)} • ${SessionCard.formatModelName(usageEvent.model)}`;
         this.tooltip = SessionCard.createTooltip(usageEvent);
         this.iconPath = SessionCard.getStatusIcon(usageEvent);
         this.contextValue = 'session-card';
@@ -44,11 +44,7 @@ class SessionCard extends vscode.TreeItem {
         return isPro ? '💎 Pro Plan' : `💰 $${event.cost.toFixed(3)}`;
     }
     static formatTokens(tokens) {
-        if (tokens >= 1000000)
-            return `${(tokens / 1000000).toFixed(1)}M`;
-        if (tokens >= 1000)
-            return `${(tokens / 1000).toFixed(1)}K`;
-        return tokens.toString();
+        return tokens.toLocaleString() + " tokens";
     }
     static createTooltip(event) {
         const isPro = event.kind.includes('INCLUDED_IN_PRO');

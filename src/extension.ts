@@ -28,10 +28,10 @@ class SessionCard extends vscode.TreeItem {
         public readonly usageEvent: UsageEvent,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
     ) {
-        const modelName = SessionCard.formatModelName(usageEvent.model);
-        super(modelName, collapsibleState);
+        const price = SessionCard.formatCost(usageEvent);
+        super(price, collapsibleState);
         
-        this.description = `${SessionCard.formatTime(usageEvent.timestamp)} • ${SessionCard.formatCost(usageEvent)}`;
+        this.description = `${SessionCard.formatTokens(usageEvent.tokens)} • ${SessionCard.formatTime(usageEvent.timestamp)} • ${SessionCard.formatModelName(usageEvent.model)}`;
         this.tooltip = SessionCard.createTooltip(usageEvent);
         this.iconPath = SessionCard.getStatusIcon(usageEvent);
         this.contextValue = 'session-card';
@@ -60,9 +60,7 @@ class SessionCard extends vscode.TreeItem {
     }
 
     private static formatTokens(tokens: number): string {
-        if (tokens >= 1000000) return `${(tokens/1000000).toFixed(1)}M`;
-        if (tokens >= 1000) return `${(tokens/1000).toFixed(1)}K`;
-        return tokens.toString();
+        return tokens.toLocaleString() + " tokens";
     }
 
     private static createTooltip(event: UsageEvent): string {
