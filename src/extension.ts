@@ -31,19 +31,47 @@ class SessionCard extends vscode.TreeItem {
         const price = SessionCard.formatCost(usageEvent);
         super(price, collapsibleState);
         
-        this.description = `${SessionCard.formatTokens(usageEvent.tokens)} • ${SessionCard.formatTime(usageEvent.timestamp)} • ${SessionCard.formatModelName(usageEvent.model)}`;
+        this.description = `${SessionCard.formatTokens(usageEvent.tokens)} • ${SessionCard.formatTime(usageEvent.timestamp)} • ${SessionCard.formatModelName(usageEvent.model)} • ${usageEvent.kind}`;
         this.tooltip = SessionCard.createTooltip(usageEvent);
         this.iconPath = SessionCard.getStatusIcon(usageEvent);
         this.contextValue = 'session-card';
     }
 
     private static formatModelName(model: string): string {
-        return model
-            .replace('claude-4-sonnet', '🧠 Claude 4 Sonnet')
-            .replace('claude-3.5-sonnet', '🧠 Claude 3.5 Sonnet')
-            .replace('claude-3-haiku', '🧠 Claude 3 Haiku')
-            .replace('gpt-4', '🤖 GPT-4')
-            .replace('gpt-3.5', '🤖 GPT-3.5');
+        const lowerModel = model.toLowerCase();
+        
+        // Auto model
+        if (lowerModel === 'auto') return '🎯 Auto';
+        
+        // Claude models
+        if (lowerModel.includes('claude')) {
+            if (lowerModel.includes('4') && lowerModel.includes('sonnet')) return '🧠 Claude 4 Sonnet';
+            if (lowerModel.includes('3.5') && lowerModel.includes('sonnet')) return '🧠 Claude 3.5 Sonnet';
+            if (lowerModel.includes('3') && lowerModel.includes('haiku')) return '🧠 Claude 3 Haiku';
+            if (lowerModel.includes('3') && lowerModel.includes('opus')) return '🧠 Claude 3 Opus';
+            return '🧠 ' + model.charAt(0).toUpperCase() + model.slice(1);
+        }
+        
+        // GPT models
+        if (lowerModel.includes('gpt')) {
+            if (lowerModel.includes('4o')) return '🤖 GPT-4o';
+            if (lowerModel.includes('4') && lowerModel.includes('turbo')) return '🤖 GPT-4 Turbo';
+            if (lowerModel.includes('4')) return '🤖 GPT-4';
+            if (lowerModel.includes('3.5')) return '🤖 GPT-3.5';
+            return '🤖 ' + model.toUpperCase();
+        }
+        
+        // Other models
+        if (lowerModel.includes('gemini')) return '💎 ' + model.charAt(0).toUpperCase() + model.slice(1);
+        if (lowerModel.includes('llama') && lowerModel.includes('code')) return '🦙 Code Llama';
+        if (lowerModel.includes('llama')) return '🦙 ' + model.charAt(0).toUpperCase() + model.slice(1);
+        if (lowerModel.includes('mistral')) return '🌬️ ' + model.charAt(0).toUpperCase() + model.slice(1);
+        if (lowerModel.includes('palm')) return '🌴 ' + model.charAt(0).toUpperCase() + model.slice(1);
+        if (lowerModel.includes('bard')) return '🎭 ' + model.charAt(0).toUpperCase() + model.slice(1);
+        if (lowerModel.includes('codex')) return '💻 ' + model.charAt(0).toUpperCase() + model.slice(1);
+        
+        // Default: capitalize first letter
+        return model.charAt(0).toUpperCase() + model.slice(1);
     }
 
     private static formatTime(timestamp: string): string {
@@ -55,8 +83,21 @@ class SessionCard extends vscode.TreeItem {
     }
 
     private static formatCost(event: UsageEvent): string {
-        const isPro = event.kind.includes('INCLUDED_IN_PRO');
-        return isPro ? '💎 Pro Plan' : `💰 $${event.cost.toFixed(3)}`;
+        if (typeof event.cost === 'number' && event.cost > 0) {
+            if (event.cost < 0.2) {
+                return `✅ $${event.cost.toFixed(3)}`;
+            } else if (event.cost <= 0.5) {
+                return `⚠️ $${event.cost.toFixed(3)}`;
+            } else {
+                return `🚨 $${event.cost.toFixed(3)}`;
+            }
+        } else if (event.kind.includes('INCLUDED')) {
+            return '💎 Included';
+        } else if (event.kind.includes('ERRORED_NOT_CHARGED')) {
+            return '❌ Error - Not Charged';
+        } else {
+            return 'Unknown';
+        }
     }
 
     private static formatTokens(tokens: number): string {
@@ -207,7 +248,6 @@ class PriceDataProvider implements vscode.TreeDataProvider<PriceItem | SessionCa
                 
                 const sessionCards = this.usageData
                     .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
-                    .slice(0, 20) // Show last 20 sessions
                     .map(event => new SessionCard(event));
                 
                 return [headerItem, ...sessionCards];
