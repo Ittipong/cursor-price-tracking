@@ -407,9 +407,10 @@ class PriceDataProvider implements vscode.TreeDataProvider<PriceItem | SessionCa
         });
         
         if (token) {
-            this.sessionToken = token;
+            const formattedToken = `WorkosCursorSessionToken=${token}`;
+            this.sessionToken = formattedToken;
             const config = vscode.workspace.getConfiguration('cursor-price-tracking');
-            await config.update('sessionToken', token, vscode.ConfigurationTarget.Global);
+            await config.update('sessionToken', formattedToken, vscode.ConfigurationTarget.Global);
             vscode.window.showInformationMessage('Token saved successfully!');
             this._onDidChangeTreeData.fire();
         }

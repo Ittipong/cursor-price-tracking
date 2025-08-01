@@ -3,6 +3,7 @@
   "displayName": "Cursor Price Tracking",
   "description": "VSCode extension for tracking Cursor pricing",
   "version": "0.0.1",
+  "icon": "logo.png",
   "engines": {
     "vscode": "^1.74.0"
   },

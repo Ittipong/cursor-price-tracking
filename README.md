@@ -70,14 +70,20 @@ To access your Cursor usage data, you need to provide your session token:
 
 ## Commands
 
-- `cursor-price-tracking.refreshPrices` - Refresh usage data
-- `cursor-price-tracking.helloWorld` - Test command
+Access these commands through the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
+
+- **`cursor-price-tracking.refreshPrices`** - Refresh usage data in the panel view
+- **`cursor-price-tracking.refreshStatusBar`** - Refresh status bar data (last 30 minutes)
+- **`cursor-price-tracking.setToken`** - Configure your Cursor session token
+- **`cursor-price-tracking.clearToken`** - Remove stored session token
+- **`cursor-price-tracking.debugApi`** - Test API connectivity and debug issues
+- **`cursor-price-tracking.helloWorld`** - Test command for development
 
 ## Configuration
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `cursor-price-tracking.sessionToken` | Your Cursor session token for API access | `""` |
+| `cursor-price-tracking.sessionToken` | Cursor Usage: Set cookie token | `""` |
 
 ## Troubleshooting
 
