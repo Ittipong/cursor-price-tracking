@@ -96,6 +96,9 @@ class SessionCard extends vscode.TreeItem {
         else if (event.kind.includes('ERRORED_NOT_CHARGED')) {
             return '❌ Error - Not Charged';
         }
+        else if (typeof event.cost === 'number' && event.cost == 0) {
+            return '🆓 Free';
+        }
         else {
             return 'Unknown';
         }
@@ -106,9 +109,34 @@ class SessionCard extends vscode.TreeItem {
     static createTooltip(event) {
         const isPro = event.kind.includes('INCLUDED_IN_PRO');
         const costText = isPro ? 'Included in Pro Plan' : `$${event.cost.toFixed(4)}`;
+        // Cost status
+        let costStatus = '';
+        if (typeof event.cost === 'number' && event.cost > 0) {
+            if (event.cost < 0.2) {
+                costStatus = `✅ Low Cost: $${event.cost.toFixed(3)}`;
+            }
+            else if (event.cost <= 0.5) {
+                costStatus = `⚠️ Medium Cost: $${event.cost.toFixed(3)}`;
+            }
+            else {
+                costStatus = `🚨 High Cost: $${event.cost.toFixed(3)}`;
+            }
+        }
+        else if (event.kind.includes('INCLUDED')) {
+            costStatus = '💎 Included in Plan';
+        }
+        else if (event.kind.includes('ERRORED_NOT_CHARGED')) {
+            costStatus = '❌ Error - Not Charged';
+        }
+        else if (typeof event.cost === 'number' && event.cost === 0) {
+            costStatus = '🆓 Free';
+        }
+        else {
+            costStatus = '❓ Unknown Cost';
+        }
         return [
+            costStatus,
             `🕐 Time: ${SessionCard.formatTime(event.timestamp)}`,
-            `💰 Cost: ${costText}`,
             `🔢 Tokens: ${SessionCard.formatTokens(event.tokens)}`,
             `🤖 Model: ${event.model}`,
             `📊 Type: ${event.kind}`
