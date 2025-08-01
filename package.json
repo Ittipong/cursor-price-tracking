@@ -35,6 +35,10 @@
       {
         "command": "cursor-price-tracking.debugApi",
         "title": "Debug API Call"
+      },
+      {
+        "command": "cursor-price-tracking.refreshStatusBar",
+        "title": "Refresh Status Bar"
       }
     ],
     "configuration": {
