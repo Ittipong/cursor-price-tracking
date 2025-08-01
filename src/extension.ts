@@ -23,6 +23,71 @@ class PriceItem extends vscode.TreeItem {
     }
 }
 
+class SessionCard extends vscode.TreeItem {
+    constructor(
+        public readonly usageEvent: UsageEvent,
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None
+    ) {
+        const modelName = SessionCard.formatModelName(usageEvent.model);
+        super(modelName, collapsibleState);
+        
+        this.description = `${SessionCard.formatTime(usageEvent.timestamp)} • ${SessionCard.formatCost(usageEvent)}`;
+        this.tooltip = SessionCard.createTooltip(usageEvent);
+        this.iconPath = SessionCard.getStatusIcon(usageEvent);
+        this.contextValue = 'session-card';
+    }
+
+    private static formatModelName(model: string): string {
+        return model
+            .replace('claude-4-sonnet', '🧠 Claude 4 Sonnet')
+            .replace('claude-3.5-sonnet', '🧠 Claude 3.5 Sonnet')
+            .replace('claude-3-haiku', '🧠 Claude 3 Haiku')
+            .replace('gpt-4', '🤖 GPT-4')
+            .replace('gpt-3.5', '🤖 GPT-3.5');
+    }
+
+    private static formatTime(timestamp: string): string {
+        return new Date(parseInt(timestamp)).toLocaleTimeString('en-US', {
+            hour12: true,
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+    }
+
+    private static formatCost(event: UsageEvent): string {
+        const isPro = event.kind.includes('INCLUDED_IN_PRO');
+        return isPro ? '💎 Pro Plan' : `💰 $${event.cost.toFixed(3)}`;
+    }
+
+    private static formatTokens(tokens: number): string {
+        if (tokens >= 1000000) return `${(tokens/1000000).toFixed(1)}M`;
+        if (tokens >= 1000) return `${(tokens/1000).toFixed(1)}K`;
+        return tokens.toString();
+    }
+
+    private static createTooltip(event: UsageEvent): string {
+        const isPro = event.kind.includes('INCLUDED_IN_PRO');
+        const costText = isPro ? 'Included in Pro Plan' : `$${event.cost.toFixed(4)}`;
+        
+        return [
+            `🕐 Time: ${SessionCard.formatTime(event.timestamp)}`,
+            `💰 Cost: ${costText}`,
+            `🔢 Tokens: ${SessionCard.formatTokens(event.tokens)}`,
+            `🤖 Model: ${event.model}`,
+            `📊 Type: ${event.kind}`
+        ].join('\n');
+    }
+
+    private static getStatusIcon(event: UsageEvent): vscode.ThemeIcon {
+        const isPro = event.kind.includes('INCLUDED_IN_PRO');
+        const hasHighCost = event.cost > 0.1;
+        
+        if (isPro) return new vscode.ThemeIcon('star-full');
+        if (hasHighCost) return new vscode.ThemeIcon('warning');
+        return new vscode.ThemeIcon('pass');
+    }
+}
+
 class ApiService {
     private static readonly API_URL = 'https://cursor.com/api/dashboard/get-filtered-usage-events';
     
@@ -90,9 +155,9 @@ class ApiService {
     }
 }
 
-class PriceDataProvider implements vscode.TreeDataProvider<PriceItem> {
-    private _onDidChangeTreeData: vscode.EventEmitter<PriceItem | undefined | null | void> = new vscode.EventEmitter<PriceItem | undefined | null | void>();
-    readonly onDidChangeTreeData: vscode.Event<PriceItem | undefined | null | void> = this._onDidChangeTreeData.event;
+class PriceDataProvider implements vscode.TreeDataProvider<PriceItem | SessionCard> {
+    private _onDidChangeTreeData: vscode.EventEmitter<PriceItem | SessionCard | undefined | null | void> = new vscode.EventEmitter<PriceItem | SessionCard | undefined | null | void>();
+    readonly onDidChangeTreeData: vscode.Event<PriceItem | SessionCard | undefined | null | void> = this._onDidChangeTreeData.event;
     private usageData: UsageEvent[] = [];
     private sessionToken: string = '';
 
@@ -118,11 +183,11 @@ class PriceDataProvider implements vscode.TreeDataProvider<PriceItem> {
         }
     }
 
-    getTreeItem(element: PriceItem): vscode.TreeItem {
+    getTreeItem(element: PriceItem | SessionCard): vscode.TreeItem {
         return element;
     }
 
-    async getChildren(element?: PriceItem): Promise<PriceItem[]> {
+    async getChildren(element?: PriceItem | SessionCard): Promise<(PriceItem | SessionCard)[]> {
         if (!element) {
             if (!this.sessionToken) {
                 return [new PriceItem('No session token', 'Configure in settings')];
@@ -135,33 +200,19 @@ class PriceDataProvider implements vscode.TreeDataProvider<PriceItem> {
                     return [new PriceItem('No usage data', 'Last 24 hours')];
                 }
 
-                // Show individual recent events (most recent first)
+                // Create iOS-style cards for recent sessions
                 const headerItem = new PriceItem(
-                    'TIME|PRICE|TOKENS|MODEL',
-                    ''
+                    '📱 Recent Sessions',
+                    'Last 24 hours'
                 );
+                headerItem.iconPath = new vscode.ThemeIcon('history');
                 
-                const eventItems = this.usageData
+                const sessionCards = this.usageData
                     .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
-                    .slice(0, 30) // Show last 30 events
-                    .map(event => {
-                        const isPro = event.kind.includes('INCLUDED_IN_PRO');
-                        const priceDisplay = isPro ? 'Pro Plan' : `$${event.cost.toFixed(3)}`;
-                        const modelDisplay = event.model.replace('claude-4-sonnet', 'Claude 4 Sonnet');
-                        const timeDisplay = new Date(parseInt(event.timestamp))
-                            .toLocaleTimeString('en-US', { 
-                                hour12: true, 
-                                hour: 'numeric', 
-                                minute: '2-digit' 
-                            });
-                        
-                        return new PriceItem(
-                            `${timeDisplay}|${priceDisplay}|${event.tokens}|${modelDisplay}`,
-                            ''
-                        );
-                    });
+                    .slice(0, 20) // Show last 20 sessions
+                    .map(event => new SessionCard(event));
                 
-                return [headerItem, ...eventItems];
+                return [headerItem, ...sessionCards];
             } catch (error) {
                 console.error('Failed to fetch usage data:', error);
                 return [new PriceItem('Error fetching data', 'Check token/connection')];
