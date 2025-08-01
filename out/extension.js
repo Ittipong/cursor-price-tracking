@@ -221,6 +221,9 @@ class PriceDataProvider {
         this.sessionToken = '';
         this.loadSessionToken();
     }
+    setStatusBarManager(statusBarManager) {
+        this.statusBarManager = statusBarManager;
+    }
     async loadSessionToken() {
         const config = vscode.workspace.getConfiguration('cursor-price-tracking');
         this.sessionToken = config.get('sessionToken', '');
@@ -242,15 +245,32 @@ class PriceDataProvider {
     async getChildren(element) {
         if (!element) {
             if (!this.sessionToken) {
+                // Update status bar to show no token state
+                if (this.statusBarManager) {
+                    this.statusBarManager.showNoToken();
+                }
                 return [new PriceItem('No session token', 'Configure in settings')];
             }
             try {
-                this.usageData = await ApiService.fetchUsageData(this.sessionToken, 'last30m');
+                this.usageData = await ApiService.fetchUsageData(this.sessionToken, 'last24h');
+                // Update status bar with the first item data
+                if (this.statusBarManager) {
+                    if (this.usageData.length > 0) {
+                        // Sort by timestamp to get the most recent item first
+                        const sortedData = this.usageData.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
+                        const firstItem = sortedData[0];
+                        this.statusBarManager.updateCost(firstItem.cost || 0);
+                    }
+                    else {
+                        // No data found, reset loading state and show $0.00
+                        this.statusBarManager.updateCost(0);
+                    }
+                }
                 if (this.usageData.length === 0) {
-                    return [new PriceItem('No usage data', 'Last 30 minutes')];
+                    return [new PriceItem('No usage data', 'Last 24 hours')];
                 }
                 // Create iOS-style cards for recent sessions
-                const headerItem = new PriceItem('📱 Recent Sessions', 'Last 30 minutes');
+                const headerItem = new PriceItem('📱 Recent Sessions', 'Last 24 hours');
                 headerItem.iconPath = new vscode.ThemeIcon('history');
                 const sessionCards = this.usageData
                     .sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp))
@@ -259,6 +279,10 @@ class PriceDataProvider {
             }
             catch (error) {
                 console.error('Failed to fetch usage data:', error);
+                // Update status bar to show error state
+                if (this.statusBarManager) {
+                    this.statusBarManager.showError();
+                }
                 return [new PriceItem('Error fetching data', 'Check token/connection')];
             }
         }
@@ -266,6 +290,29 @@ class PriceDataProvider {
     }
     async refresh() {
         await this.loadSessionToken();
+        // Directly fetch data and update status bar to ensure it's not stuck on loading
+        if (this.statusBarManager) {
+            if (!this.sessionToken) {
+                this.statusBarManager.showNoToken();
+            }
+            else {
+                try {
+                    const usageData = await ApiService.fetchUsageData(this.sessionToken, 'last24h');
+                    if (usageData.length > 0) {
+                        const sortedData = usageData.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
+                        const firstItem = sortedData[0];
+                        this.statusBarManager.updateCost(firstItem.cost || 0);
+                    }
+                    else {
+                        this.statusBarManager.updateCost(0);
+                    }
+                }
+                catch (error) {
+                    console.error('Failed to refresh status bar:', error);
+                    this.statusBarManager.showError();
+                }
+            }
+        }
         this._onDidChangeTreeData.fire();
     }
     async setToken() {
@@ -317,6 +364,8 @@ class StatusBarManager {
         this.statusBarItem.command = 'cursor-price-tracking.refreshStatusBar';
         this.statusBarItem.tooltip = "Click to refresh Cursor pricing (last 30 minutes)";
         this.statusBarItem.show();
+        // Start with loading state instead of $0.00
+        this.isLoading = true;
         this.updateDisplay();
         context.subscriptions.push(this.statusBarItem);
     }
@@ -363,8 +412,21 @@ class StatusBarManager {
         }
     }
     updateCost(cost) {
+        this.isLoading = false; // Reset loading state
         this.currentCost = cost;
         this.updateDisplay();
+    }
+    showError() {
+        this.isLoading = false;
+        this.statusBarItem.text = "Cursor: Error";
+        this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+        this.statusBarItem.tooltip = "Failed to load Cursor pricing data. Click to retry or configure token.";
+    }
+    showNoToken() {
+        this.isLoading = false;
+        this.statusBarItem.text = "Cursor: No Token";
+        this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+        this.statusBarItem.tooltip = "No session token configured. Click to configure token.";
     }
 }
 function activate(context) {
@@ -376,19 +438,27 @@ function activate(context) {
     const treeView = vscode.window.createTreeView('cursorPrices', {
         treeDataProvider: priceDataProvider
     });
+    // Connect status bar manager to price data provider
+    priceDataProvider.setStatusBarManager(statusBarManager);
     // Register commands
     const helloWorldCommand = vscode.commands.registerCommand('cursor-price-tracking.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from Cursor Price Tracking!');
     });
     const refreshCommand = vscode.commands.registerCommand('cursor-price-tracking.refreshPrices', async () => {
-        await Promise.all([
-            priceDataProvider.refresh(),
-            statusBarManager.refreshData()
-        ]);
+        await priceDataProvider.refresh();
         vscode.window.showInformationMessage('Cursor prices refreshed!');
     });
-    const refreshStatusBarCommand = vscode.commands.registerCommand('cursor-price-tracking.refreshStatusBar', () => {
-        statusBarManager.refreshData();
+    const refreshStatusBarCommand = vscode.commands.registerCommand('cursor-price-tracking.refreshStatusBar', async () => {
+        // Check if we need to configure token first
+        const config = vscode.workspace.getConfiguration('cursor-price-tracking');
+        const sessionToken = config.get('sessionToken', '');
+        if (!sessionToken) {
+            // Redirect to token configuration
+            await priceDataProvider.setToken();
+        }
+        else {
+            statusBarManager.refreshData();
+        }
     });
     const setTokenCommand = vscode.commands.registerCommand('cursor-price-tracking.setToken', async () => {
         await priceDataProvider.setToken();
@@ -408,8 +478,11 @@ function activate(context) {
     context.subscriptions.push(clearTokenCommand);
     context.subscriptions.push(debugApiCommand);
     context.subscriptions.push(treeView);
-    // Initial data load for status bar
-    statusBarManager.refreshData();
+    // Auto-fetch data when VSCode opens - start immediately
+    priceDataProvider.refresh().catch(() => {
+        // If initial load fails, show error state in status bar
+        statusBarManager.showError();
+    });
 }
 exports.activate = activate;
 function deactivate() { }
