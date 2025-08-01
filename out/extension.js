@@ -433,29 +433,90 @@ class StatusBarManager {
     updateDisplay() {
         if (this.isLoading) {
             this.statusBarItem.text = "$(loading~spin) Cursor: Loading...";
-            this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
+            this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.remoteBackground');
+            this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.remoteBackground');
         }
         else if (this.currentUsageEvent) {
-            // Use the same format as SessionCard with token count
-            const formattedCost = this.formatCost(this.currentUsageEvent);
+            // Use the same format as SessionCard with token count and emoji
+            const emoji = this.getCostEmoji(this.currentUsageEvent);
+            const cost = this.formatCost(this.currentUsageEvent);
             const tokenCount = this.formatTokenCount(this.currentUsageEvent.tokens);
-            this.statusBarItem.text = `Cursor: ${formattedCost}|${tokenCount}`;
-            // Set background color based on cost level - always show warning/error
+            this.statusBarItem.text = `${emoji} Usage: ${cost} | ${tokenCount}`;
+            // Set theme colors based on cost level
             if (typeof this.currentUsageEvent.cost === 'number' && this.currentUsageEvent.cost > 0.5) {
-                // High cost - show error background
+                // High cost - red theme
+                this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
                 this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
             }
             else if (typeof this.currentUsageEvent.cost === 'number' && this.currentUsageEvent.cost >= 0.2) {
-                // Medium cost - show warning background
+                // Medium cost - yellow theme
+                this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.warningForeground');
                 this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
             }
+            else if (typeof this.currentUsageEvent.cost === 'number' && this.currentUsageEvent.cost > 0) {
+                // Low cost - green theme
+                this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.remoteBackground');
+                this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.remoteBackground');
+            }
             else {
+                // Default for other cases
+                this.statusBarItem.color = undefined;
                 this.statusBarItem.backgroundColor = undefined;
             }
         }
         else {
-            this.statusBarItem.text = "Cursor: $0.00|0k";
+            this.statusBarItem.text = "Usage: No activity";
             this.statusBarItem.backgroundColor = undefined;
+        }
+    }
+    getCostEmoji(event) {
+        if (typeof event.cost === 'number' && event.cost > 0) {
+            if (event.cost < 0.2) {
+                return '✅';
+            }
+            else if (event.cost <= 0.5) {
+                return '⚠️';
+            }
+            else {
+                return '🚨';
+            }
+        }
+        else if (event.kind.includes('INCLUDED')) {
+            return '💎';
+        }
+        else if (event.kind.includes('ERRORED_NOT_CHARGED')) {
+            return '❌';
+        }
+        else if (typeof event.cost === 'number' && event.cost === 0) {
+            return '🆓';
+        }
+        else {
+            return '❓';
+        }
+    }
+    formatCostWithEmoji(event) {
+        if (typeof event.cost === 'number' && event.cost > 0) {
+            if (event.cost < 0.2) {
+                return `✅ ${event.costDisplay}`;
+            }
+            else if (event.cost <= 0.5) {
+                return `⚠️ ${event.costDisplay}`;
+            }
+            else {
+                return `🚨 ${event.costDisplay}`;
+            }
+        }
+        else if (event.kind.includes('INCLUDED')) {
+            return '💎 Included';
+        }
+        else if (event.kind.includes('ERRORED_NOT_CHARGED')) {
+            return '❌ Error';
+        }
+        else if (typeof event.cost === 'number' && event.cost === 0) {
+            return '🆓 Free';
+        }
+        else {
+            return 'Unknown';
         }
     }
     formatTokenCount(tokens) {
@@ -547,12 +608,14 @@ class StatusBarManager {
     showError() {
         this.isLoading = false;
         this.statusBarItem.text = "Cursor: Error";
+        this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
         this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
         this.statusBarItem.tooltip = "Failed to load Cursor pricing data. Click to retry or configure token.";
     }
     showNoToken() {
         this.isLoading = false;
         this.statusBarItem.text = "Cursor: No Token";
+        this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.warningForeground');
         this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
         this.statusBarItem.tooltip = "No session token configured. Click to configure token.";
     }

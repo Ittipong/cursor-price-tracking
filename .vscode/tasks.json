@@ -9,9 +9,27 @@
                 "panel": "dedicated",
                 "reveal": "never"
             },
-            "problemMatcher": [
-                "$tsc"
-            ]
+            "options": {
+                "statusbar": {
+                    "label": "$(tools) Building extension...",
+                    "hide": true
+                }
+            },
+            "problemMatcher": ["$tsc"]
+        },
+        {
+            "label": "${workspaceFolder}:tsc:build",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "compile"],
+            "group": "build",
+            "presentation": {
+                "panel": "shared",
+                "reveal": "silent",
+                "clear": false
+            },
+            "problemMatcher": ["$tsc"]
         }
     ]
 }
+EOF < /dev/null

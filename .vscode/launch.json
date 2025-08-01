@@ -11,7 +11,8 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ],
-            "preLaunchTask": "${workspaceFolder}/npm: compile"
+            "preLaunchTask": "${workspaceFolder}:tsc:build"
         }
     ]
 }
+EOF < /dev/null
