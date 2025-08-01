@@ -1,0 +1,88 @@
+{
+  "name": "cursor-price-tracking",
+  "displayName": "Cursor Price Tracking",
+  "description": "VSCode extension for tracking Cursor pricing",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cursor-price-tracking.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "cursor-price-tracking.refreshPrices",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "cursor-price-tracking.setToken",
+        "title": "Set Token"
+      },
+      {
+        "command": "cursor-price-tracking.clearToken",
+        "title": "Clear Token"
+      },
+      {
+        "command": "cursor-price-tracking.debugApi",
+        "title": "Debug API Call"
+      }
+    ],
+    "configuration": {
+      "title": "Cursor Price Tracking",
+      "properties": {
+        "cursor-price-tracking.sessionToken": {
+          "type": "string",
+          "default": "",
+          "description": "Cursor session token for API access"
+        }
+      }
+    },
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "cursorPricePanel",
+          "title": "Cursor Pricing",
+          "icon": "$(dollar)"
+        }
+      ]
+    },
+    "views": {
+      "cursorPricePanel": [
+        {
+          "id": "cursorPrices",
+          "name": "Price List",
+          "when": "true"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "cursor-price-tracking.refreshPrices",
+          "when": "view == cursorPrices",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  }
+}
