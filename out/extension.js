@@ -81,13 +81,13 @@ class SessionCard extends vscode.TreeItem {
     static formatCost(event) {
         if (typeof event.cost === 'number' && event.cost > 0) {
             if (event.cost < 0.2) {
-                return `✅ $${event.cost.toFixed(3)}`;
+                return `✅ ${event.costDisplay}`;
             }
             else if (event.cost <= 0.5) {
-                return `⚠️ $${event.cost.toFixed(3)}`;
+                return `⚠️ ${event.costDisplay}`;
             }
             else {
-                return `🚨 $${event.cost.toFixed(3)}`;
+                return `🚨 ${event.costDisplay}`;
             }
         }
         else if (event.kind.includes('INCLUDED')) {
@@ -185,13 +185,15 @@ class ApiService {
                         if (response.usageEventsDisplay) {
                             const usageEvents = response.usageEventsDisplay.map((event) => {
                                 const eventDate = new Date(parseInt(event.timestamp));
+                                const costInfo = this.parseCostFromUsageBasedCosts(event.usageBasedCosts);
                                 return {
                                     timestamp: event.timestamp,
                                     date: eventDate.toLocaleDateString(),
                                     time: eventDate.toLocaleTimeString(),
                                     model: event.model || 'Unknown',
-                                    tokens: (event.tokenUsage?.inputTokens || 0) + (event.tokenUsage?.outputTokens || 0),
-                                    cost: event.tokenUsage?.totalCents ? event.tokenUsage.totalCents / 100 : 0,
+                                    tokens: (event.tokenUsage?.cacheWriteTokens || 0) + (event.tokenUsage?.cacheReadTokens || 0) + (event.tokenUsage?.inputTokens || 0) + (event.tokenUsage?.outputTokens || 0),
+                                    cost: costInfo.numericValue,
+                                    costDisplay: costInfo.displayValue,
                                     kind: event.kind || 'Unknown'
                                 };
                             });
@@ -210,6 +212,62 @@ class ApiService {
             req.write(JSON.stringify(requestData));
             req.end();
         });
+    }
+    static parseCostFromUsageBasedCosts(usageBasedCosts) {
+        if (!usageBasedCosts) {
+            return { numericValue: 0, displayValue: '$0.00' };
+        }
+        // If usageBasedCosts is a string like "$0.05"
+        if (typeof usageBasedCosts === 'string') {
+            const cleanCost = usageBasedCosts.replace(/[$,]/g, '');
+            const parsedCost = parseFloat(cleanCost);
+            return {
+                numericValue: isNaN(parsedCost) ? 0 : parsedCost,
+                displayValue: usageBasedCosts // Keep original format
+            };
+        }
+        // If usageBasedCosts is a number
+        if (typeof usageBasedCosts === 'number') {
+            return {
+                numericValue: usageBasedCosts,
+                displayValue: `$${usageBasedCosts.toFixed(2)}`
+            };
+        }
+        // If usageBasedCosts is an object, try to find cost value
+        if (typeof usageBasedCosts === 'object') {
+            // Check for common cost field names
+            const possibleFields = ['cost', 'totalCost', 'amount', 'price', 'value'];
+            for (const field of possibleFields) {
+                if (usageBasedCosts[field] !== undefined) {
+                    const fieldValue = usageBasedCosts[field];
+                    if (typeof fieldValue === 'string') {
+                        const cleanCost = fieldValue.replace(/[$,]/g, '');
+                        const parsedCost = parseFloat(cleanCost);
+                        return {
+                            numericValue: isNaN(parsedCost) ? 0 : parsedCost,
+                            displayValue: fieldValue // Keep original format
+                        };
+                    }
+                    else if (typeof fieldValue === 'number') {
+                        return {
+                            numericValue: fieldValue,
+                            displayValue: `$${fieldValue.toFixed(2)}`
+                        };
+                    }
+                }
+            }
+            // If it's an array, sum all values and create display
+            if (Array.isArray(usageBasedCosts)) {
+                const results = usageBasedCosts.map(item => this.parseCostFromUsageBasedCosts(item));
+                const totalNumeric = results.reduce((total, result) => total + result.numericValue, 0);
+                const displayValues = results.map(result => result.displayValue).filter(val => val !== '$0.00');
+                return {
+                    numericValue: totalNumeric,
+                    displayValue: displayValues.length > 0 ? displayValues.join(' + ') : `$${totalNumeric.toFixed(2)}`
+                };
+            }
+        }
+        return { numericValue: 0, displayValue: '$0.00' };
     }
 }
 ApiService.API_URL = 'https://cursor.com/api/dashboard/get-filtered-usage-events';
@@ -256,14 +314,13 @@ class PriceDataProvider {
                 // Update status bar with the first item data
                 if (this.statusBarManager) {
                     if (this.usageData.length > 0) {
-                        // Sort by timestamp to get the most recent item first
                         const sortedData = this.usageData.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
                         const firstItem = sortedData[0];
-                        this.statusBarManager.updateCost(firstItem.cost || 0);
+                        this.statusBarManager.updateUsageEvent(firstItem);
                     }
                     else {
                         // No data found, reset loading state and show $0.00
-                        this.statusBarManager.updateCost(0);
+                        this.statusBarManager.updateUsageEvent(null);
                     }
                 }
                 if (this.usageData.length === 0) {
@@ -301,10 +358,10 @@ class PriceDataProvider {
                     if (usageData.length > 0) {
                         const sortedData = usageData.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
                         const firstItem = sortedData[0];
-                        this.statusBarManager.updateCost(firstItem.cost || 0);
+                        this.statusBarManager.updateUsageEvent(firstItem);
                     }
                     else {
-                        this.statusBarManager.updateCost(0);
+                        this.statusBarManager.updateUsageEvent(null);
                     }
                 }
                 catch (error) {
@@ -358,7 +415,7 @@ class PriceDataProvider {
 class StatusBarManager {
     constructor(context) {
         this.isLoading = false;
-        this.currentCost = 0;
+        this.currentUsageEvent = null;
         this.sessionToken = '';
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
         this.statusBarItem.command = 'cursor-price-tracking.refreshStatusBar';
@@ -378,11 +435,55 @@ class StatusBarManager {
             this.statusBarItem.text = "$(loading~spin) Cursor: Loading...";
             this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
         }
+        else if (this.currentUsageEvent) {
+            // Use the same format as SessionCard with token count
+            const formattedCost = this.formatCost(this.currentUsageEvent);
+            const tokenCount = this.formatTokenCount(this.currentUsageEvent.tokens);
+            this.statusBarItem.text = `Cursor: ${formattedCost}|${tokenCount}`;
+            // Set background color based on cost level - always show warning/error
+            if (typeof this.currentUsageEvent.cost === 'number' && this.currentUsageEvent.cost > 0.5) {
+                // High cost - show error background
+                this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+            }
+            else if (typeof this.currentUsageEvent.cost === 'number' && this.currentUsageEvent.cost >= 0.2) {
+                // Medium cost - show warning background
+                this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+            }
+            else {
+                this.statusBarItem.backgroundColor = undefined;
+            }
+        }
         else {
-            this.statusBarItem.text = `Cursor: $${this.currentCost.toFixed(2)}`;
-            this.statusBarItem.backgroundColor = this.currentCost > 1.0
-                ? new vscode.ThemeColor('statusBarItem.warningBackground')
-                : undefined;
+            this.statusBarItem.text = "Cursor: $0.00|0k";
+            this.statusBarItem.backgroundColor = undefined;
+        }
+    }
+    formatTokenCount(tokens) {
+        if (tokens >= 1000000) {
+            return `${(tokens / 1000000).toFixed(1)}M`;
+        }
+        else if (tokens >= 1000) {
+            return `${Math.round(tokens / 1000)}k`;
+        }
+        else {
+            return tokens.toString();
+        }
+    }
+    formatCost(event) {
+        if (typeof event.cost === 'number' && event.cost > 0) {
+            return event.costDisplay;
+        }
+        else if (event.kind.includes('INCLUDED')) {
+            return 'Included';
+        }
+        else if (event.kind.includes('ERRORED_NOT_CHARGED')) {
+            return 'Error';
+        }
+        else if (typeof event.cost === 'number' && event.cost === 0) {
+            return 'Free';
+        }
+        else {
+            return 'Unknown';
         }
     }
     async refreshData() {
@@ -399,8 +500,15 @@ class StatusBarManager {
                 return;
             }
             const usageData = await ApiService.fetchUsageData(this.sessionToken, 'last30m');
-            this.currentCost = usageData.reduce((total, event) => total + (event.cost || 0), 0);
-            vscode.window.showInformationMessage(`Cursor cost updated: $${this.currentCost.toFixed(2)} (last 30 minutes)`);
+            if (usageData.length > 0) {
+                const sortedData = usageData.sort((a, b) => parseInt(b.timestamp) - parseInt(a.timestamp));
+                this.currentUsageEvent = sortedData[0];
+            }
+            else {
+                this.currentUsageEvent = null;
+            }
+            const costText = this.currentUsageEvent ? this.formatCost(this.currentUsageEvent) : '$0.00';
+            vscode.window.showInformationMessage(`Cursor cost updated: ${costText} (last 30 minutes)`);
         }
         catch (error) {
             console.error('Failed to refresh status bar data:', error);
@@ -411,9 +519,29 @@ class StatusBarManager {
             this.updateDisplay();
         }
     }
+    updateUsageEvent(event) {
+        this.isLoading = false; // Reset loading state
+        this.currentUsageEvent = event;
+        this.updateDisplay();
+    }
     updateCost(cost) {
         this.isLoading = false; // Reset loading state
-        this.currentCost = cost;
+        // Create a simple usage event for backward compatibility
+        if (cost > 0) {
+            this.currentUsageEvent = {
+                timestamp: Date.now().toString(),
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                model: 'Unknown',
+                tokens: 0,
+                cost: cost,
+                costDisplay: `$${cost.toFixed(2)}`,
+                kind: 'USAGE'
+            };
+        }
+        else {
+            this.currentUsageEvent = null;
+        }
         this.updateDisplay();
     }
     showError() {
