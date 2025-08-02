@@ -1,154 +1,371 @@
-# Cursor Price Tracking Extension
+# 💰 Cursor Usage & Cost Tracker
 
-A VSCode extension that tracks and displays your Cursor AI usage and costs directly in your editor.
+> **Monitor your Cursor AI usage, token consumption, and costs in real-time with detailed breakdowns by model and session**
 
-## Features
+[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
+[![Downloads](https://img.shields.io/badge/downloads-0-brightgreen.svg)](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-- 📊 **Real-time Usage Tracking**: View your Cursor usage data for the last 24 hours
-- 💰 **Cost Monitoring**: Track token consumption and associated costs
-- 📅 **Daily Breakdown**: See usage grouped by date with detailed metrics
-- 🔄 **Auto Refresh**: Keep your data up-to-date with manual refresh capability
-- 📍 **Status Bar**: Quick view of current pricing in the status bar
-- 🎛️ **Panel View**: Dedicated panel for detailed usage information
+Take control of your Cursor AI spending with comprehensive usage tracking and cost monitoring directly in your VS Code editor. Never be surprised by your AI usage costs again!
 
-## Installation
+![Cursor Price Tracking Extension Screenshot](./example.png)
 
-1. Clone or download this repository
-2. Open the project in VSCode
-3. Press `F5` to run the extension in Development Mode
-4. The extension will activate automatically
+*Real-time usage tracking with detailed cost breakdowns, session history, and color-coded indicators*
 
-## Setup
+## 🚀 Quick Setup - Let's Get Started!
 
-### Getting Your Session Token
+> **💡 Don't worry! Setting up this extension is easier than you think. We'll walk you through it step by step.**
 
-To access your Cursor usage data, you need to provide your session token:
+## ⚙️ One-Time Setup Guide
 
-1. **Open Cursor Dashboard**
-   - Go to https://cursor.com/dashboard in your browser
-   - Make sure you're logged in
+### 🔑 **Getting Your Session Token** (Takes 2 minutes!)
 
-2. **Open Developer Tools**
-   - Press `F12` to open Developer Tools
-   - Or right-click → "Inspect Element"
+**✨ Good news:** We just need one thing to get started - your Cursor session token. Think of it like a key that lets the extension see your usage data.
 
-3. **Find Your Token**
-   - Go to the **"Application"** tab
-   - In the left sidebar, expand **"Cookies"**
-   - Click on `https://cursor.com`
-   - Find the cookie named `WorkosCursorSessionToken`
-   - Copy the **Value** of this cookie
+**🔒 Privacy first:** This token stays safely on your computer and is never shared with anyone!
 
-4. **Configure the Extension**
-   - When you first open the extension, it will prompt for your token
-   - Or go to VSCode Settings (`Ctrl+,` / `Cmd+,`)
-   - Search for "cursor price tracking"
-   - Paste your token in the "Session Token" field
+<details>
+<summary><strong>📋 Click here for easy step-by-step instructions</strong></summary>
 
-## Usage
+#### 1️⃣ **Visit Your Cursor Dashboard**
+```
+1.1 🌐 Go to: https://cursor.com/dashboard
+1.2 👋 Make sure you're logged in (you should see your usage data)
+```
 
-### Viewing Usage Data
+#### 2️⃣ **Open Developer Tools** (Don't worry, it's easier than it sounds!)
+```
+2.1 ⌨️  Just press F12 on your keyboard
+2.2 🖱️  Or right-click anywhere and select "Inspect" or "Inspect Element"
+```
 
-1. **Open the Panel**
-   - Look for the "Cursor Pricing" tab in the bottom panel
-   - If not visible, go to View → Panel to show the panel area
+#### 3️⃣ **Find Your Session Token** (We'll help you navigate!)
 
-2. **View Your Data**
-   - The panel shows your usage grouped by date
-   - Format: `Date: X tokens | $X.XXXX`
-   - Data covers the last 24 hours
+**Using Chrome, Edge, or Brave? Here's your path:**
+```
+3.1 📱 Look for the "Application" tab at the top
+3.2 📂 On the left side, click "Storage" then "Cookies"
+3.3 🔗 Click on "https://cursor.com"
+3.4 🔍 Scroll down until you see "WorkosCursorSessionToken"
+3.5 📋 Double-click the long value next to it to select everything
+```
 
-3. **Refresh Data**
-   - Click the refresh button (🔄) in the panel header
-   - Or use the Command Palette: `Ctrl+Shift+P` → "Refresh"
+**Using Firefox? No problem:**
+```
+3.1 📱 Look for the "Storage" tab at the top
+3.2 📂 On the left side, click "Cookies"
+3.3 🔗 Click on "https://cursor.com"
+3.4 🔍 Find "WorkosCursorSessionToken" in the list
+3.5 📋 Right-click the value and select "Copy Value"
+```
 
-### Status Bar
+**Using Safari? We've got you covered:**
+```
+3.1 📱 Look for the "Storage" tab
+3.2 📂 Click "Cookies" on the left
+3.3 🔗 Select "cursor.com"
+3.4 🔍 Find "WorkosCursorSessionToken"
+3.5 📋 Double-click the value to select and copy
+```
 
-- Shows current Cursor pricing information
-- Located in the bottom-right status bar
-- Hover for additional details
+> **💡 Tip**: The token should be a long string (100+ characters). If it looks short, you might have the wrong one!
 
-## Commands
+#### 4️⃣ **Connect the Extension** (Almost done! 🎉)
 
-Access these commands through the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
+**Easy way:** 
+```
+4.1 When you first use the extension, it'll ask for your token
+4.2 Just paste what you copied and you're all set!
+```
 
-- **`cursor-price-tracking.refreshPrices`** - Refresh usage data in the panel view
-- **`cursor-price-tracking.refreshStatusBar`** - Refresh status bar data (last 30 minutes)
-- **`cursor-price-tracking.setToken`** - Configure your Cursor session token
-- **`cursor-price-tracking.clearToken`** - Remove stored session token
-- **`cursor-price-tracking.debugApi`** - Test API connectivity and debug issues
-- **`cursor-price-tracking.helloWorld`** - Test command for development
+**Manual way:** 
+```
+4.1 Open VS Code Settings: Ctrl+, (Windows/Linux) or Cmd+, (Mac)
+4.2 Search for "cursor price tracking" 
+4.3 Paste your token in the "Session Token" field
+```
 
-## Configuration
+#### 🤝 **Need Help? We're Here for You!**
+
+<details>
+<summary><strong>🔍 Can't find the WorkosCursorSessionToken?</strong></summary>
+
+**Let's troubleshoot together:**
+
+T.1 **Double-check you're logged in**: Go to https://cursor.com/dashboard - you should see your usage data
+T.2 **Give it a refresh**: Press F5 on the page and try again
+T.3 **Check for filters**: Make sure there are no search filters hiding the cookie
+T.4 **Verify the domain**: Look for "https://cursor.com" specifically (not other cursor domains)
+T.5 **Fresh start**: Try logging out and back in, then extract the token again
+
+</details>
+
+<details>
+<summary><strong>🧐 Token doesn't look right?</strong></summary>
+
+**Here's what to look for:**
+
+- ✅ **Good token**: Long string (100+ characters) starting with letters like `eyJ0eXAiOiJKV1QiLCJhbGciOi...`
+- ❌ **Probably wrong**: Short values like `true`, `false`, numbers, or random IDs
+- 💡 **Double-check**: Make sure you're copying from "WorkosCursorSessionToken" specifically
+
+</details>
+
+</details>
+
+#### 5️⃣ **🎉 You're All Set!**
+
+Once you've added your token, the extension will start working automatically. You'll see your Cursor usage data in the panel and status bar!
+
+> **🔒 Your Privacy Matters**: Your token stays safely on your computer and is never shared with anyone. We only use it to fetch your personal usage data from Cursor's API.
+
+---
+
+## ⌨️ Available Commands
+
+Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and type:
+
+| Command | Description | Shortcut |
+|---------|-------------|----------|
+| `🔄 Refresh Usage Data` | Update panel with latest usage | Click status bar |
+| `⚙️ Configure Session Token` | Set up or update your token | Auto-prompted |
+| `🧹 Reset Configuration` | Clear stored token | Settings reset |
+| `🔧 Debug API` | Test connectivity & troubleshoot | For support |
+
+## 🛠️ Configuration
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `cursor-price-tracking.sessionToken` | Cursor Usage: Set cookie token | `""` |
+| `cursorPriceTracking.sessionToken` | Your Cursor session token for API access | `""` |
 
-## Troubleshooting
+> **💡 Tip**: Use the markdown description in settings for step-by-step token extraction guide!
 
-### "No session token" Error
-- Make sure you've configured your session token in settings
-- Verify the token is copied correctly from browser cookies
+## 📊 How to Use
 
-### "Error fetching data" Message
-- Check your internet connection
-- Verify your session token is still valid
-- Try refreshing your browser session at cursor.com and get a new token
+### 🎛️ **Panel View** - Detailed Analytics
+1. **Access the Panel**
+   ```
+   👀 Look for "Cursor Price Tracking" in the bottom panel
+   📺 If hidden: View → Panel (or Ctrl+J / Cmd+J)
+   ```
 
-### "No usage data" Message
-- This appears if you haven't used Cursor in the last 24 hours
-- Or if there are no recorded usage events
+2. **Understanding Your Data**
+   ```
+   📅 Grouped by date for easy tracking
+   🏷️  Format: "Model: X tokens | $X.XXXX"
+   ⏰ Covers last 24 hours of usage
+   🔄 Click refresh icon to update
+   ```
 
-### Token Expired
-- Session tokens expire after some time
-- Get a fresh token from your browser following the setup steps
+3. **Data Breakdown**
+   - **Model Types**: Claude, GPT-4, GPT-3.5, etc.
+   - **Token Count**: Input + Output + Cache tokens
+   - **Cost Classification**: 
+     - ✅ **Low** (< $0.20) - Green indicator
+     - ⚠️ **Medium** ($0.20-$0.50) - Yellow indicator  
+     - 🚨 **High** (> $0.50) - Red indicator
+     - 💎 **Pro Plan** - Included usage
+     - 🆓 **Free** - No cost
 
-## Privacy & Security
+### 📍 **Status Bar** - Quick Overview
+```
+📍 Location: Bottom-right corner of VS Code
+💰 Shows: Current session costs
+🖱️  Click: Instant refresh
+🏷️  Hover: Detailed tooltip with breakdown
+```
 
-- Your session token is stored locally in VSCode settings
-- No data is sent to third parties
-- The extension only communicates with Cursor's official API
-- Token is used solely for fetching your personal usage data
+## ✨ Key Features
 
-## Development
+### 📊 **Real-Time Usage Analytics**
+- Track your Cursor usage for the last 24 hours
+- View detailed token consumption by AI model (Claude, GPT, etc.)
+- Monitor session-by-session breakdowns with timestamps
 
-### Building from Source
+### 💸 **Smart Cost Monitoring**
+- Real-time cost calculations with color-coded indicators
+- Visual alerts for different spending levels (✅ Low, ⚠️ Medium, 🚨 High)
+- Support for Pro plan inclusion tracking (💎 Included usage)
 
+### 🎯 **Intuitive Interface**
+- **Dedicated Panel**: Expandable tree view with detailed usage metrics
+- **Status Bar Integration**: Quick cost overview at a glance
+- **Auto-Refresh**: Keep data current with one-click refresh
+
+### 🔒 **Privacy First**
+- Your session token stays local in VS Code settings
+- Direct communication with Cursor's official API only
+- No third-party data sharing
+
+## 🚀 Quick Start
+
+### Installation from Marketplace
+1. Open VS Code
+2. Go to Extensions (`Ctrl+Shift+X`)
+3. Search for "Cursor Usage & Cost Tracker"
+4. Click **Install**
+5. Follow the setup guide above ⬆️
+
+### Development Installation
+1. Clone this repository
+2. Open in VS Code
+3. Press `F5` to launch Extension Development Host
+4. Extension activates automatically
+
+
+## 🚨 Troubleshooting
+
+<details>
+<summary><strong>🔧 Common Issues & Solutions</strong></summary>
+
+### ❌ **"No session token configured"**
+**Problem**: Extension can't access Cursor API
+**Solutions**:
+- ✅ Follow the setup guide above to extract your token
+- ✅ Verify token is pasted correctly (no extra spaces)
+- ✅ Use the "Configure Session Token" command
+
+### 🌐 **"Error fetching data"**
+**Problem**: API request failed
+**Solutions**:
+- ✅ Check your internet connection
+- ✅ Verify you're logged into cursor.com
+- ✅ Get a fresh token (old ones expire)
+- ✅ Try the "Debug API" command for detailed error info
+
+### 📭 **"No usage data available"**
+**Problem**: No recent Cursor activity
+**Causes**:
+- 🔹 Haven't used Cursor in the last 24 hours
+- 🔹 All usage was on free/included plans
+- 🔹 Recent API changes (check for extension updates)
+
+### ⏰ **"Token expired" or 401 errors**
+**Problem**: Session token is no longer valid
+**Solution**:
+- ✅ Log out and back into cursor.com
+- ✅ Extract a fresh token following the setup guide
+- ✅ Session tokens typically expire after a few weeks
+
+### 🐛 **Still having issues?**
+1. Enable VS Code Developer Tools: `Help → Toggle Developer Tools`
+2. Check the Console for error messages
+3. Run the "Debug API" command
+4. Report issues with error details at our GitHub repository
+
+</details>
+
+## 🔒 Privacy & Security
+
+<table>
+<tr>
+<td>🏠</td>
+<td><strong>Local Storage</strong></td>
+<td>Your session token stays in VS Code settings - never leaves your machine</td>
+</tr>
+<tr>
+<td>🔗</td>
+<td><strong>Direct API</strong></td>
+<td>Communicates only with Cursor's official API endpoints</td>
+</tr>
+<tr>
+<td>🚫</td>
+<td><strong>No Third Parties</strong></td>
+<td>Zero data sharing with external services or analytics</td>
+</tr>
+<tr>
+<td>👤</td>
+<td><strong>Personal Use Only</strong></td>
+<td>Fetches only your own usage data - no access to other accounts</td>
+</tr>
+</table>
+
+## 🛠️ Development
+
+<details>
+<summary><strong>🔨 Building from Source</strong></summary>
+
+### Prerequisites
+- Node.js 16+ and npm
+- VS Code with TypeScript support
+
+### Setup & Build
 ```bash
-# Install dependencies
+# Clone the repository
+git clone https://github.com/Ittipong/cursor-price-tracking.git
+cd cursor-price-tracking
+
+# Install dependencies  
 npm install
 
 # Compile TypeScript
 npm run compile
 
-# Watch for changes
+# Watch for changes during development
 npm run watch
 
-# Test the extension
-# Press F5 in VSCode to launch Extension Development Host
+# Package extension
+npm run install
 ```
 
-## Contributing
+### Testing
+- Press `F5` in VS Code to launch Extension Development Host
+- The extension will load automatically for testing
+- Use Command Palette to test individual commands
 
-1. Fork the repository
-2. Create your feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+</details>
 
-## License
+## 🤝 Contributing
 
-This project is for educational and personal use. Please respect Cursor's Terms of Service when using their API.
+We welcome contributions! Here's how to get started:
 
-## Support
+1. **🍴 Fork** the repository
+2. **🌿 Create** your feature branch (`git checkout -b feature/amazing-feature`)
+3. **✍️ Make** your changes with clear, tested code
+4. **🧪 Test** thoroughly using the Extension Development Host
+5. **📝 Commit** your changes (`git commit -m 'Add amazing feature'`)
+6. **🚀 Push** to your branch (`git push origin feature/amazing-feature`)
+7. **📬 Submit** a Pull Request
 
-If you encounter any issues:
-1. Check the troubleshooting section above
-2. Verify your session token is valid
-3. Check VSCode's Output panel for error details
-4. Create an issue with detailed error information
+### 💡 Ideas for Contributions
+- 📊 Additional chart visualizations
+- 🎨 Custom theme support  
+- 📈 Historical usage trends
+- 🔔 Cost threshold alerts
+- 🌐 Multi-language support
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+**Important**: Please respect Cursor's Terms of Service when using their API. This extension is for personal usage tracking only.
+
+## 🆘 Support & Community
+
+### Getting Help
+1. 📖 **Check the troubleshooting section** above
+2. 🔍 **Search existing issues** on GitHub
+3. 🐛 **Create a detailed issue** with error logs and steps to reproduce
+4. 💬 **Include your VS Code version** and operating system
+
+### Useful Links
+- 🐛 [Report Issues](https://github.com/Ittipong/cursor-price-tracking/issues)
+- 💡 [Feature Requests](https://github.com/Ittipong/cursor-price-tracking/issues/new)
+- 📚 [VS Code Extension Development](https://code.visualstudio.com/api)
+- 🏠 [Cursor Official Site](https://cursor.com)
 
 ---
 
-**Note**: This extension requires a valid Cursor account and session token to function properly.
+### ⭐ Enjoying the Extension?
+
+If this extension helps you track your Cursor costs effectively:
+- ⭐ **Star the repository** on GitHub
+- 📝 **Leave a review** on the VS Code Marketplace  
+- 🗣️ **Share with fellow developers** who use Cursor AI
+- 🤝 **Contribute** to make it even better!
+
+---
+
+> **💰 Take control of your AI spending with Cursor Usage & Cost Tracker!**
+
+**Requirements**: Valid Cursor account and session token for API access.

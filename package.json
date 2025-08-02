@@ -3,7 +3,7 @@
   "displayName": "Cursor Usage & Cost Tracker",
   "description": "Monitor your Cursor AI usage, token consumption, and costs in real-time with detailed breakdowns by model and session",
   "version": "0.0.1",
-  "publisher": "cursor-community",
+  "publisher": "coconut",
   "icon": "logo.png",
   "keywords": [
     "cursor",
@@ -17,13 +17,13 @@
     "gpt",
     "monitoring"
   ],
-  "homepage": "https://github.com/cursor-community/cursor-price-tracking",
+  "homepage": "https://github.com/Ittipong/cursor-price-tracking",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cursor-community/cursor-price-tracking.git"
+    "url": "https://github.com/Ittipong/cursor-price-tracking.git"
   },
   "bugs": {
-    "url": "https://github.com/cursor-community/cursor-price-tracking/issues"
+    "url": "https://github.com/Ittipong/cursor-price-tracking/issues"
   },
   "license": "MIT",
   "engines": {
@@ -99,7 +99,8 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "install": "vsce package && code --install-extension cursor-price-tracking-0.0.1.vsix"
   },
   "devDependencies": {
     "@types/vscode": "^1.95.0",
