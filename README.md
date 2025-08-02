@@ -2,11 +2,11 @@
 
 > **Monitor your Cursor AI usage, token consumption, and costs in real-time**
 
-[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
+[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://marketplace.visualstudio.com/items?itemName=cocodev.cursor-price-tracking)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-❤️-red.svg)](https://github.com/Ittipong/cursor-price-tracking)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Ittipong/cursor-price-tracking/pulls)
-[![New Release](https://img.shields.io/badge/status-new%20release-brightgreen.svg)](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
+[![New Release](https://img.shields.io/badge/status-new%20release-brightgreen.svg)](https://marketplace.visualstudio.com/items?itemName=cocodev.cursor-price-tracking)
 
 Track your Cursor AI spending with comprehensive usage monitoring directly in VS Code. Never be surprised by your AI usage costs again!
 
@@ -21,7 +21,7 @@ Track your Cursor AI spending with comprehensive usage monitoring directly in VS
 4. Paste the token when the extension prompts you
 
 ### 2. Install & Use
-1. Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
+1. Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=cocodev.cursor-price-tracking)
 2. Extension activates automatically
 3. View usage in the "Cursor Price Tracking" panel
 4. Check costs in the status bar

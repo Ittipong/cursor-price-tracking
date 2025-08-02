@@ -384,7 +384,6 @@ class PriceDataProvider {
             this.sessionToken = formattedToken;
             const config = vscode.workspace.getConfiguration('cursorPriceTracking');
             await config.update('sessionToken', formattedToken, vscode.ConfigurationTarget.Global);
-            vscode.window.showInformationMessage('Token saved successfully!');
             this._onDidChangeTreeData.fire();
         }
     }
@@ -394,7 +393,6 @@ class PriceDataProvider {
             this.sessionToken = '';
             const config = vscode.workspace.getConfiguration('cursorPriceTracking');
             await config.update('sessionToken', '', vscode.ConfigurationTarget.Global);
-            vscode.window.showInformationMessage('Token cleared successfully!');
             this._onDidChangeTreeData.fire();
         }
     }
@@ -555,12 +553,9 @@ class StatusBarManager {
             else {
                 this.currentUsageEvent = null;
             }
-            const costText = this.currentUsageEvent ? this.formatCost(this.currentUsageEvent) : '$0.00';
-            vscode.window.showInformationMessage(`Cursor cost updated: ${costText} (last 30 minutes)`);
         }
         catch (error) {
             console.error('Failed to refresh status bar data:', error);
-            vscode.window.showErrorMessage('Failed to refresh Cursor pricing data');
         }
         finally {
             this.isLoading = false;
@@ -621,7 +616,6 @@ function activate(context) {
     // Register commands
     const refreshCommand = vscode.commands.registerCommand('cursorPriceTracking.refresh', async () => {
         await priceDataProvider.refresh();
-        vscode.window.showInformationMessage('Cursor usage data refreshed!');
     });
     const configureCommand = vscode.commands.registerCommand('cursorPriceTracking.configure', async () => {
         await priceDataProvider.setToken();

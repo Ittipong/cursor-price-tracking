@@ -3,7 +3,7 @@
   "displayName": "Cursor Usage & Cost Tracker",
   "description": "Monitor your Cursor AI usage, token consumption, and costs in real-time with detailed breakdowns by model and session",
   "version": "0.0.1",
-  "publisher": "coconut",
+  "publisher": "cocodev",
   "icon": "logo.png",
   "keywords": [
     "cursor",
@@ -26,6 +26,10 @@
     "url": "https://github.com/Ittipong/cursor-price-tracking/issues"
   },
   "license": "MIT",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -35,10 +39,19 @@
     "Data Science"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onCommand:cursorPriceTracking.refresh",
+    "onCommand:cursorPriceTracking.configure",
+    "onView:cursorPrices"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "capabilities": {
+      "virtualWorkspaces": true,
+      "untrustedWorkspaces": {
+        "supported": true
+      }
+    },
     "commands": [
       {
         "command": "cursorPriceTracking.refresh",
