@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deactivate = exports.activate = void 0;
+exports.activate = activate;
+exports.deactivate = deactivate;
 const vscode = require("vscode");
 const https = require("https");
 class PriceItem extends vscode.TreeItem {
@@ -283,7 +284,7 @@ class PriceDataProvider {
         this.statusBarManager = statusBarManager;
     }
     async loadSessionToken() {
-        const config = vscode.workspace.getConfiguration('cursor-price-tracking');
+        const config = vscode.workspace.getConfiguration('cursorPriceTracking');
         this.sessionToken = config.get('sessionToken', '');
         if (!this.sessionToken) {
             const token = await vscode.window.showInputBox({
@@ -381,7 +382,7 @@ class PriceDataProvider {
         if (token) {
             const formattedToken = `WorkosCursorSessionToken=${token}`;
             this.sessionToken = formattedToken;
-            const config = vscode.workspace.getConfiguration('cursor-price-tracking');
+            const config = vscode.workspace.getConfiguration('cursorPriceTracking');
             await config.update('sessionToken', formattedToken, vscode.ConfigurationTarget.Global);
             vscode.window.showInformationMessage('Token saved successfully!');
             this._onDidChangeTreeData.fire();
@@ -391,25 +392,10 @@ class PriceDataProvider {
         const confirm = await vscode.window.showWarningMessage('Are you sure you want to clear the stored token?', 'Yes', 'No');
         if (confirm === 'Yes') {
             this.sessionToken = '';
-            const config = vscode.workspace.getConfiguration('cursor-price-tracking');
+            const config = vscode.workspace.getConfiguration('cursorPriceTracking');
             await config.update('sessionToken', '', vscode.ConfigurationTarget.Global);
             vscode.window.showInformationMessage('Token cleared successfully!');
             this._onDidChangeTreeData.fire();
-        }
-    }
-    async debugApi() {
-        if (!this.sessionToken) {
-            vscode.window.showWarningMessage('No token set. Use "Set Token" command first.');
-            return;
-        }
-        try {
-            vscode.window.showInformationMessage('Testing API call... Check VSCode Developer Console for details.');
-            const result = await ApiService.fetchUsageData(this.sessionToken);
-            vscode.window.showInformationMessage(`API test completed. Found ${result.length} events. Check console for details.`);
-        }
-        catch (error) {
-            vscode.window.showErrorMessage(`API test failed: ${error}`);
-            console.error('API Debug Error:', error);
         }
     }
 }
@@ -419,8 +405,8 @@ class StatusBarManager {
         this.currentUsageEvent = null;
         this.sessionToken = '';
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-        this.statusBarItem.command = 'cursor-price-tracking.refreshStatusBar';
-        this.statusBarItem.tooltip = "Click to refresh Cursor pricing (last 30 minutes)";
+        this.statusBarItem.command = 'cursorPriceTracking.refresh';
+        this.statusBarItem.tooltip = "Click to refresh Cursor usage data";
         this.statusBarItem.show();
         // Start with loading state instead of $0.00
         this.isLoading = true;
@@ -428,7 +414,7 @@ class StatusBarManager {
         context.subscriptions.push(this.statusBarItem);
     }
     async loadSessionToken() {
-        const config = vscode.workspace.getConfiguration('cursor-price-tracking');
+        const config = vscode.workspace.getConfiguration('cursorPriceTracking');
         this.sessionToken = config.get('sessionToken', '');
     }
     updateDisplay() {
@@ -633,42 +619,21 @@ function activate(context) {
     // Connect status bar manager to price data provider
     priceDataProvider.setStatusBarManager(statusBarManager);
     // Register commands
-    const helloWorldCommand = vscode.commands.registerCommand('cursor-price-tracking.helloWorld', () => {
-        vscode.window.showInformationMessage('Hello World from Cursor Price Tracking!');
-    });
-    const refreshCommand = vscode.commands.registerCommand('cursor-price-tracking.refreshPrices', async () => {
+    const refreshCommand = vscode.commands.registerCommand('cursorPriceTracking.refresh', async () => {
         await priceDataProvider.refresh();
-        vscode.window.showInformationMessage('Cursor prices refreshed!');
+        vscode.window.showInformationMessage('Cursor usage data refreshed!');
     });
-    const refreshStatusBarCommand = vscode.commands.registerCommand('cursor-price-tracking.refreshStatusBar', async () => {
-        // Check if we need to configure token first
-        const config = vscode.workspace.getConfiguration('cursor-price-tracking');
-        const sessionToken = config.get('sessionToken', '');
-        if (!sessionToken) {
-            // Redirect to token configuration
-            await priceDataProvider.setToken();
-        }
-        else {
-            statusBarManager.refreshData();
-        }
-    });
-    const setTokenCommand = vscode.commands.registerCommand('cursor-price-tracking.setToken', async () => {
+    const configureCommand = vscode.commands.registerCommand('cursorPriceTracking.configure', async () => {
         await priceDataProvider.setToken();
         statusBarManager.refreshData();
     });
-    const clearTokenCommand = vscode.commands.registerCommand('cursor-price-tracking.clearToken', async () => {
+    const resetCommand = vscode.commands.registerCommand('cursorPriceTracking.reset', async () => {
         await priceDataProvider.clearToken();
         statusBarManager.updateCost(0);
     });
-    const debugApiCommand = vscode.commands.registerCommand('cursor-price-tracking.debugApi', () => {
-        priceDataProvider.debugApi();
-    });
-    context.subscriptions.push(helloWorldCommand);
     context.subscriptions.push(refreshCommand);
-    context.subscriptions.push(refreshStatusBarCommand);
-    context.subscriptions.push(setTokenCommand);
-    context.subscriptions.push(clearTokenCommand);
-    context.subscriptions.push(debugApiCommand);
+    context.subscriptions.push(configureCommand);
+    context.subscriptions.push(resetCommand);
     context.subscriptions.push(treeView);
     // Auto-fetch data when VSCode opens - start immediately
     priceDataProvider.refresh().catch(() => {
@@ -676,7 +641,5 @@ function activate(context) {
         statusBarManager.showError();
     });
 }
-exports.activate = activate;
 function deactivate() { }
-exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map
