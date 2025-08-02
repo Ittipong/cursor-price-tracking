@@ -3,7 +3,7 @@
 > **Monitor your Cursor AI usage, token consumption, and costs in real-time with detailed breakdowns by model and session**
 
 [![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
-[![Downloads](https://img.shields.io/badge/downloads-0-brightgreen.svg)](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
+[![New Release](https://img.shields.io/badge/status-new%20release-brightgreen.svg)](https://marketplace.visualstudio.com/items?itemName=coconut.cursor-price-tracking)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Take control of your Cursor AI spending with comprehensive usage tracking and cost monitoring directly in your VS Code editor. Never be surprised by your AI usage costs again!
@@ -184,7 +184,6 @@ Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and type:
 
 ### 💸 **Smart Cost Monitoring**
 - Real-time cost calculations with color-coded indicators
-- Visual alerts for different spending levels (✅ Low, ⚠️ Medium, 🚨 High)
 - Support for Pro plan inclusion tracking (💎 Included usage)
 
 ### 🎯 **Intuitive Interface**
@@ -331,7 +330,6 @@ We welcome contributions! Here's how to get started:
 - 📊 Additional chart visualizations
 - 🎨 Custom theme support  
 - 📈 Historical usage trends
-- 🔔 Cost threshold alerts
 - 🌐 Multi-language support
 
 ## 📄 License
