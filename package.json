@@ -1,14 +1,38 @@
 {
   "name": "cursor-price-tracking",
-  "displayName": "Cursor Price Tracking",
-  "description": "VSCode extension for tracking Cursor pricing",
+  "displayName": "Cursor Usage & Cost Tracker",
+  "description": "Monitor your Cursor AI usage, token consumption, and costs in real-time with detailed breakdowns by model and session",
   "version": "0.0.1",
+  "publisher": "cursor-community",
   "icon": "logo.png",
+  "keywords": [
+    "cursor",
+    "ai",
+    "usage",
+    "cost",
+    "tracking",
+    "tokens",
+    "pricing",
+    "claude",
+    "gpt",
+    "monitoring"
+  ],
+  "homepage": "https://github.com/cursor-community/cursor-price-tracking",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cursor-community/cursor-price-tracking.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cursor-community/cursor-price-tracking/issues"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.95.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Debuggers",
+    "Data Science"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -39,7 +63,8 @@
         "cursorPriceTracking.sessionToken": {
           "type": "string",
           "default": "",
-          "description": "Session token for authenticating with Cursor's API (WorkosCursorSessionToken cookie value)"
+          "description": "Your Cursor session token for API authentication. Extract the 'WorkosCursorSessionToken' cookie value from cursor.com while logged in.",
+          "markdownDescription": "Your Cursor session token for API authentication.\n\n**How to get your token:**\n1. Go to [cursor.com](https://cursor.com) and log in\n2. Open browser DevTools (F12)\n3. Go to Application/Storage > Cookies\n4. Copy the `WorkosCursorSessionToken` value\n5. Paste it here or use the 'Configure Session Token' command"
         }
       }
     },
