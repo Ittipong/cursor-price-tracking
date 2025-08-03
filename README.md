@@ -2,12 +2,12 @@
 
 > **Monitor your Cursor AI usage, token consumption, and costs in real-time**
 
-[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://marketplace.visualstudio.com/items?itemName=cocodev.cursor-price-tracking)
+[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://open-vsx.org/extension/Ittipong/cursor-price-tracking)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-❤️-red.svg)](https://github.com/Ittipong/cursor-price-tracking)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Ittipong/cursor-price-tracking/pulls)
-[![Marketplace](https://img.shields.io/badge/VS%20Code-Marketplace-blue.svg)](https://marketplace.visualstudio.com/items?itemName=cocodev.cursor-price-tracking)
-[![Management Hub](https://img.shields.io/badge/Management-Hub-orange.svg)](https://marketplace.visualstudio.com/manage/publishers/cocodev/extensions/cursor-price-tracking/hub?_a=acquisition)
+[![Open-VSX](https://img.shields.io/badge/Open--VSX-Registry-blue.svg)](https://open-vsx.org/extension/Ittipong/cursor-price-tracking)
+[![Open-VSX](https://img.shields.io/badge/Open--VSX-Registry-orange.svg)](https://open-vsx.org/extension/Ittipong/cursor-price-tracking)
 
 Track your Cursor AI spending with comprehensive usage monitoring directly in VS Code. Never be surprised by your AI usage costs again!
 
@@ -22,12 +22,12 @@ Track your Cursor AI spending with comprehensive usage monitoring directly in VS
 4. Paste the token when the extension prompts you
 
 ### 2. Install & Use
-1. Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=cocodev.cursor-price-tracking)
+1. Install from [Open-VSX Registry](https://open-vsx.org/extension/Ittipong/cursor-price-tracking)
 2. Extension activates automatically
 3. View usage in the "Cursor Price Tracking" panel
 4. Check costs in the status bar
 
-📊 **Extension Stats & Management**: [Marketplace Hub](https://marketplace.visualstudio.com/manage/publishers/cocodev/extensions/cursor-price-tracking/hub?_a=acquisition)
+📊 **Extension Registry**: [Open-VSX Registry](https://open-vsx.org/extension/Ittipong/cursor-price-tracking)
 
 ## ✨ Features
 
@@ -108,5 +108,5 @@ Your support helps maintain and improve this free extension! 🙏
 
 ⭐ **Star the repo** if this helps track your AI costs!  
 🐛 **Report issues**: [GitHub Issues](https://github.com/Ittipong/cursor-price-tracking/issues)  
-📦 **VS Code Marketplace**: [Install Extension](https://marketplace.visualstudio.com/items?itemName=cocodev.cursor-price-tracking)  
-📊 **Publisher Hub**: [Extension Stats & Management](https://marketplace.visualstudio.com/manage/publishers/cocodev/extensions/cursor-price-tracking/hub?_a=acquisition)
+📦 **Open-VSX Registry**: [Install Extension](https://open-vsx.org/extension/Ittipong/cursor-price-tracking)  
+📊 **Open-VSX Registry**: [Extension Page](https://open-vsx.org/extension/Ittipong/cursor-price-tracking)

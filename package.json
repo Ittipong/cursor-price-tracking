@@ -3,7 +3,7 @@
   "displayName": "Cursor Usage & Cost Tracker",
   "description": "Monitor your Cursor AI usage, token consumption, and costs in real-time with detailed breakdowns by model and session",
   "version": "0.0.1",
-  "publisher": "cocodev",
+  "publisher": "Ittipong",
   "icon": "logo.png",
   "keywords": [
     "cursor",
